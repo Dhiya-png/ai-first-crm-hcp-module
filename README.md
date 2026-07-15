@@ -1,340 +1,212 @@
-# AI-First CRM for Healthcare Provider (HCP) Interactions
+# 🩺 AI-Powered HCP CRM
 
-## Project Overview
-
-AI-First CRM is a Healthcare Provider (HCP) interaction management system that allows medical representatives to:
-
-- Log doctor interactions
-- Store discussion details
-- Track products discussed
-- Generate AI-powered summaries
-- Get follow-up suggestions
-- Manage interaction history
-
-The system uses FastAPI for the backend, React for the frontend, PostgreSQL for the database, and LangChain + Groq LLM for AI capabilities.
+An AI-assisted Healthcare Professional (HCP) Customer Relationship Management (CRM) system that enables medical representatives to record doctor interactions using natural language. The AI extracts structured information from conversations and automatically fills the CRM form, making interaction logging faster and more efficient.
 
 ---
 
-# Features
+## 🚀 Features
 
-## 1. Log HCP Interactions
-- Store doctor interactions.
-- Save products discussed.
-- Save interaction date.
-- Maintain complete interaction history.
-
-## 2. AI Chat Assistant
-- Accepts natural language interaction notes.
-- Generates structured summaries.
-- Provides follow-up recommendations.
-
-Example:
-
-Input:
-
-```text
-I met Dr. Sarah today and discussed DermaCare Cream. She requested more samples next week.
-```
-
-Output:
-
-- Interaction Summary
-- Follow-up Suggestions
-- Next Action Items
+- 🤖 AI-powered interaction extraction
+- 📝 Automatic form filling from natural language
+- 👨‍⚕️ HCP (Doctor) Management
+- 💬 AI Chat Assistant
+- 📋 CRUD operations for interactions
+- ✏️ Edit and update interactions
+- 🗑️ Delete interactions
+- 📅 Interaction date management
+- 📦 Product discussion tracking
+- ⚡ FastAPI backend
+- ⚛️ React frontend
+- 🧠 LangGraph AI Agent
+- 🗄️ PostgreSQL database
 
 ---
 
-## 3. Interaction Management
+## 🛠️ Tech Stack
 
-Users can:
-
-- Create interactions
-- View interactions
-- Edit interactions
-- Delete interactions
-
----
-
-## 4. AI Tools
-
-The AI Agent can:
-
-- Search HCP information
-- Summarize interactions
-- Suggest follow-up actions
-- Edit interaction summaries
-- Log interaction details
-
----
-
-# Tech Stack
-
-## Frontend
-
+### Frontend
 - React.js
-- Axios
 - Redux Toolkit
+- Axios
 - React Markdown
 - CSS
 
-## Backend
-
+### Backend
 - FastAPI
 - SQLAlchemy
-- Pydantic
-- LangChain
-- LangGraph
-- Groq API
-
-## Database
-
 - PostgreSQL
+- Pydantic
+- LangGraph
+- LangChain
+- OpenAI
 
 ---
 
-# Project Structure
+## 📂 Project Structure
 
-## Backend
-
-```text
-backend/
+```
+AI-HCP-CRM/
 │
-├── app/
-│   ├── agents/
+├── backend/
+│   ├── app/
+│   ├── routers/
 │   ├── models/
-│   ├── routes/
 │   ├── schemas/
-│   ├── tools/
+│   ├── agents/
 │   ├── database.py
 │   └── main.py
 │
-├── requirements.txt
-└── .env
-```
-
-## Frontend
-
-```text
-frontend/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/
+│   │   ├── store/
+│   │   ├── assets/
+│   │   └── App.jsx
 │
-├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── services/
-│   ├── store/
-│   ├── assets/
-│   ├── App.jsx
-│   └── main.jsx
+├── README.md
+└── requirements.txt
 ```
 
 ---
 
-# Database Schema
+# ✨ AI Workflow
 
-## HCP Table
-
-| Column | Type |
-|--------|-------|
-| id | Integer |
-| name | String |
-| specialization | String |
-| hospital | String |
-
----
-
-## Interaction Table
-
-| Column | Type |
-|--------|-------|
-| id | Integer |
-| hcp_id | Integer |
-| interaction_date | Date |
-| discussion | Text |
-| products | String |
-| summary | Text |
-| follow_up_date | Date |
+1. User enters interaction in natural language.
+2. AI extracts:
+   - Doctor Name
+   - Discussion
+   - Products
+   - Date
+3. Structured form is automatically filled.
+4. User reviews or edits the extracted information.
+5. Interaction is saved to the database.
 
 ---
 
-# API Endpoints
+# 📸 Screenshots
 
-## HCP APIs
-
-### Create HCP
-
-```http
-POST /hcps/
-```
-
-### Get HCPs
-
-```http
-GET /hcps/
-```
-
----
-
-## Interaction APIs
-
-### Create Interaction
-
-```http
-POST /interactions/
-```
-
-### Get All Interactions
-
-```http
-GET /interactions/
-```
-
-### Update Interaction
-
-```http
-PUT /interactions/{id}
-```
-
-### Delete Interaction
-
-```http
-DELETE /interactions/{id}
-```
-
----
-
-## AI Chat API
-
-```http
-POST /chat/?message=
-```
+Add screenshots here.
 
 Example:
 
-```text
-I met Dr. Sarah today and discussed HeartCare Plus.
+```
+screenshots/
+    dashboard.png
+    ai-chat.png
+```
+
+Then use
+
+```md
+![Dashboard](screenshots/dashboard.png)
 ```
 
 ---
 
-# Installation
+# ⚙️ Installation
 
-## Backend Setup
-
-### Create Virtual Environment
+## Backend
 
 ```bash
+cd backend
+
 python -m venv venv
-```
 
-### Activate Environment
-
-```bash
 venv\Scripts\activate
-```
 
-### Install Dependencies
-
-```bash
 pip install -r requirements.txt
-```
 
-### Run Backend
-
-```bash
 uvicorn app.main:app --reload
 ```
 
-Backend URL:
+Backend runs at
 
-```text
+```
 http://127.0.0.1:8000
 ```
 
-Swagger Documentation:
+Swagger UI
 
-```text
+```
 http://127.0.0.1:8000/docs
 ```
 
 ---
 
-## Frontend Setup
-
-### Install Packages
+## Frontend
 
 ```bash
+cd frontend
+
 npm install
-```
 
-### Run Frontend
-
-```bash
 npm run dev
 ```
 
-Frontend URL:
+Frontend runs at
 
-```text
+```
 http://localhost:5173
 ```
 
 ---
 
-# Environment Variables
+# API Endpoints
 
-Create a `.env` file inside backend:
+## HCP
 
-```env
-DATABASE_URL=postgresql://username:password@localhost/hcp_crm
-GROQ_API_KEY=your_groq_api_key
-```
-
----
-
-# AI Workflow
-
-1. User enters interaction notes.
-2. React sends request to FastAPI.
-3. FastAPI calls LangChain Agent.
-4. Agent uses Groq LLM.
-5. AI generates:
-   - Summary
-   - Follow-up suggestions
-   - Action items
-6. Response is displayed in the frontend.
+| Method | Endpoint |
+|---------|----------|
+| GET | /hcp |
+| POST | /hcp |
+| GET | /hcp/{id} |
+| PUT | /hcp/{id} |
+| DELETE | /hcp/{id} |
 
 ---
 
-# Future Enhancements
+## Interactions
 
-- Doctor search dropdown
-- Authentication and login
-- Dashboard and analytics
-- Email reminders
-- Follow-up notifications
-- Popup edit forms
-- File upload support
+| Method | Endpoint |
+|---------|----------|
+| GET | /interactions |
+| POST | /interactions |
+| PUT | /interactions/{id} |
+| DELETE | /interactions/{id} |
+
+---
+
+## AI Chat
+
+| Method | Endpoint |
+|---------|----------|
+| POST | /chat |
+
+---
+
+# Future Improvements
+
+- Conversation memory
+- Authentication
+- User login
+- Dashboard analytics
+- File upload
+- Voice interaction
+- AI meeting summaries
 
 ---
 
 # Author
 
-**Dhiya Radhakrishnan**
+**Dhiya R**
 
 Python Full Stack Developer
 
-Skills:
-- Python
-- Django
-- FastAPI
-- React.js
-- PostgreSQL
-- LangChain
-- REST APIs
-- AI Integrations
+GitHub:
+(Add your GitHub URL)
+
+LinkedIn:
+(Add your LinkedIn URL)
 
 ---
-
-# Conclusion
-
-AI-First CRM for HCP Interactions simplifies doctor interaction management by combining traditional CRM functionality with AI-powered summarization and follow-up recommendations, helping medical representatives maintain better relationships with healthcare providers.

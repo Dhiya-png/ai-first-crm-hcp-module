@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { clearSelectedInteraction } from "../store/interactionSlice";
+import {
+  clearSelectedInteraction,
+  clearAIInteraction,
+} from "../store/interactionSlice";
 import api from "../services/api";
 
 const emptyForm = {
   hcp_id: "",
+  doctor_name: "",
   discussion: "",
   products: "",
-  interaction_date: "",
+  interaction_date: new Date().toISOString().split("T")[0],
 };
 
 function InteractionForm() {
@@ -17,19 +21,30 @@ function InteractionForm() {
     (state) => state.interaction.selectedInteraction
   );
 
+  const aiInteraction = useSelector(
+    (state) => state.interaction.aiInteraction
+  );
+
   const [formData, setFormData] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (selectedInteraction) {
+    const data = aiInteraction || selectedInteraction;
+
+    if (data) {
       setFormData({
-        hcp_id: selectedInteraction.hcp_id,
-        discussion: selectedInteraction.discussion,
-        products: selectedInteraction.products,
-        interaction_date: selectedInteraction.interaction_date,
+        hcp_id: data.hcp_id || "",
+        doctor_name: data.doctor_name || "",
+        discussion: data.discussion || "",
+        products: data.products || "",
+        interaction_date:
+          data.interaction_date ||
+          new Date().toISOString().split("T")[0],
       });
+    } else {
+      setFormData(emptyForm);
     }
-  }, [selectedInteraction]);
+  }, [selectedInteraction, aiInteraction]);
 
   const handleChange = (e) => {
     setFormData({
@@ -40,109 +55,142 @@ function InteractionForm() {
 
   const resetForm = () => {
     setFormData(emptyForm);
+
     dispatch(clearSelectedInteraction());
+    dispatch(clearAIInteraction());
   };
 
   const saveInteraction = async () => {
+    if (!formData.hcp_id) {
+      alert("Please select a valid HCP.");
+      return;
+    }
+
     setSaving(true);
+
     try {
-      if (selectedInteraction) {
-        await api.put(`/interactions/${selectedInteraction.id}`, formData);
+      const payload = {
+        hcp_id: formData.hcp_id,
+        discussion: formData.discussion,
+        products: formData.products,
+        interaction_date: formData.interaction_date,
+      };
+
+      if (selectedInteraction?.id) {
+        await api.put(
+          `/interactions/${selectedInteraction.id}`,
+          payload
+        );
+
         alert("Interaction Updated");
       } else {
-        await api.post("/interactions/", formData);
+        await api.post("/interactions/", payload);
+
         alert("Interaction Saved");
       }
 
       resetForm();
     } catch (err) {
       console.log(err);
+      alert("Unable to save interaction.");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div>
-      <div className="section-header">
-        <div className="section-header__icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 11l3 3L22 4" />
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-          </svg>
-        </div>
-        <div className="section-header__text">
+    <div className="card">
+      <div className="card-header">
+        <div>
           <span className="eyebrow">
-            {selectedInteraction ? "Editing" : "New entry"}
+            {selectedInteraction ? "Editing" : "New Entry"}
           </span>
-          <h2>Structured Form</h2>
+
+          <h3>Structured Form</h3>
         </div>
       </div>
 
       <div className="form-grid">
+
         <div className="form-group">
-          <label htmlFor="hcp_id">Doctor ID</label>
+          <label>Doctor Name</label>
+
           <input
-            id="hcp_id"
-            name="hcp_id"
-            placeholder="e.g. 10245"
-            value={formData.hcp_id}
-            onChange={handleChange}
-            required
+            name="doctor_name"
+            value={formData.doctor_name}
+            readOnly
+            placeholder="Filled by AI Assistant"
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="interaction_date">Date</label>
+          <label>Doctor ID</label>
+
           <input
-            id="interaction_date"
+            name="hcp_id"
+            value={formData.hcp_id}
+            readOnly
+            placeholder="Filled by AI"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Interaction Date</label>
+
+          <input
             type="date"
             name="interaction_date"
             value={formData.interaction_date}
             onChange={handleChange}
-            required
           />
         </div>
 
         <div className="form-group form-group--full">
-          <label htmlFor="products">Products</label>
+          <label>Products Discussed</label>
+
           <input
-            id="products"
             name="products"
-            placeholder="e.g. Amoxil, Zestril"
             value={formData.products}
             onChange={handleChange}
           />
         </div>
 
         <div className="form-group form-group--full">
-          <label htmlFor="discussion">Discussion</label>
+          <label>Discussion</label>
+
           <textarea
-            id="discussion"
+            rows="5"
             name="discussion"
-            placeholder="What was discussed during this interaction?"
             value={formData.discussion}
             onChange={handleChange}
-            required
           />
         </div>
+
       </div>
 
       <div className="form-actions">
+
         <button
           className="btn btn-primary"
           onClick={saveInteraction}
           disabled={saving}
         >
-          {saving && <span className="spinner spinner--light" />}
-          {selectedInteraction ? "Update Interaction" : "Save Interaction"}
+          {saving
+            ? "Saving..."
+            : selectedInteraction?.id
+            ? "Update Interaction"
+            : "Save Interaction"}
         </button>
 
-        {selectedInteraction && (
-          <button className="btn btn-secondary" onClick={resetForm}>
-            Cancel
+        {(selectedInteraction || aiInteraction) && (
+          <button
+            className="btn btn-secondary"
+            onClick={resetForm}
+          >
+            Clear
           </button>
         )}
+
       </div>
     </div>
   );

@@ -1,25 +1,83 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import {
+  setSelectedInteraction,
+  setAIInteraction,
+} from "../store/interactionSlice";
 import api from "../services/api";
 import ReactMarkdown from "react-markdown";
 
 function ChatBox() {
+  const dispatch = useDispatch();
+
   const [message, setMessage] = useState("");
-  const [response, setResponse] = useState("");
+  const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
+
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!message.trim() || sending) return;
 
+    const userMessage = message;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: "user",
+        text: userMessage,
+      },
+    ]);
+
+    setMessage("");
     setSending(true);
+
     try {
       const res = await api.post("/chat/", null, {
-        params: { message: message },
+        params: {
+          message: userMessage,
+        },
       });
 
-      setResponse(res.data.response);
-      setMessage("");
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "ai",
+          text: res.data.response,
+        },
+      ]);
+
+      if (res.data.interaction) {
+        const interaction = {
+          id: null,
+          hcp_id: "",
+          doctor_name: res.data.interaction.doctor_name || "",
+          discussion: res.data.interaction.discussion || "",
+          products: res.data.interaction.products || "",
+          interaction_date:
+            res.data.interaction.interaction_date ||
+            new Date().toISOString().split("T")[0],
+        };
+
+        dispatch(setAIInteraction(interaction));
+        dispatch(setSelectedInteraction(interaction));
+      }
     } catch (err) {
       console.log(err);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "ai",
+          text: "Something went wrong while contacting the AI.",
+        },
+      ]);
     } finally {
       setSending(false);
     }
@@ -33,17 +91,43 @@ function ChatBox() {
   };
 
   return (
-    <div>
+    <div className="card">
       <div className="section-header">
-        <div className="section-header__icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-        </div>
+        <div className="section-header__icon">🤖</div>
+
         <div className="section-header__text">
           <span className="eyebrow">Assistant</span>
           <h2>AI Chat</h2>
         </div>
+      </div>
+
+      <div className="chat-history">
+        {messages.length === 0 ? (
+          <div className="response-box is-empty">
+            Start chatting with the AI Assistant.
+          </div>
+        ) : (
+          messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`chat-message ${
+                msg.sender === "user"
+                  ? "chat-message-user"
+                  : "chat-message-ai"
+              }`}
+            >
+              <strong>
+                {msg.sender === "user" ? "You" : "AI"}
+              </strong>
+
+              <div style={{ marginTop: "6px" }}>
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              </div>
+            </div>
+          ))
+        )}
+
+        <div ref={chatEndRef} />
       </div>
 
       <div className="chat-input-row">
@@ -63,28 +147,14 @@ function ChatBox() {
           {sending ? (
             <span className="spinner spinner--light" />
           ) : (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m22 2-7 20-4-9-9-4Z" />
-              <path d="M22 2 11 13" />
-            </svg>
+            "Send"
           )}
-          Send
         </button>
       </div>
-      <p className="chat-hint">Press Enter to send · Shift+Enter for a new line</p>
 
-      <div className="response-label">
-        <span className="response-label__dot" />
-        AI Response
-      </div>
-
-      <div className={`response-box${response ? "" : " is-empty"}`}>
-        {response ? (
-          <ReactMarkdown>{response}</ReactMarkdown>
-        ) : (
-          "Your AI-generated summary will appear here."
-        )}
-      </div>
+      <p className="chat-hint">
+        Press Enter to send · Shift + Enter for a new line
+      </p>
     </div>
   );
 }

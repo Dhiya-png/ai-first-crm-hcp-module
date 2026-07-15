@@ -470,3 +470,121 @@ table tr:hover td {
   .chat-input-row { flex-direction: column; align-items: stretch; }
   table th:nth-child(3), table td:nth-child(3) { display: none; }
 }
+
+
+/* ================= Dashboard Layout ================= */
+
+.dashboard-layout{
+    display:grid;
+    grid-template-columns: 45% 55%;
+    gap:24px;
+    margin-bottom:24px;
+}
+
+.left-panel,
+.right-panel{
+    display:flex;
+    flex-direction:column;
+}
+
+.form-card,
+.chat-card{
+    height:100%;
+}
+
+.history-card{
+    margin-top:10px;
+}
+
+/* Responsive */
+
+@media(max-width:1000px){
+
+.dashboard-layout{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+
+/* ============================================ */
+/* ===========================
+   AI Chat Bubble Styles
+=========================== */
+
+.chat-history{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-bottom:20px;
+    max-height:430px;
+    overflow-y:auto;
+    padding-right:8px;
+}
+
+.chat-history::-webkit-scrollbar{
+    width:6px;
+}
+
+.chat-history::-webkit-scrollbar-thumb{
+    background:#d4d4d4;
+    border-radius:10px;
+}
+
+.chat-message{
+    max-width:80%;
+    padding:14px 18px;
+    border-radius:18px;
+    line-height:1.6;
+    word-wrap:break-word;
+    animation:fadeIn .25s ease;
+}
+
+.chat-message strong{
+    display:block;
+    margin-bottom:6px;
+    font-size:13px;
+}
+
+.chat-message-user{
+    align-self:flex-end;
+    background:#4f46e5;
+    color:white;
+    border-bottom-right-radius:6px;
+}
+
+.chat-message-user strong{
+    color:#ffffff;
+}
+
+.chat-message-user p{
+    color:white;
+}
+
+.chat-message-ai{
+    align-self:flex-start;
+    background:#f3f4f6;
+    color:#222;
+    border:1px solid #e5e7eb;
+    border-bottom-left-radius:6px;
+}
+
+.chat-message-ai strong{
+    color:#4f46e5;
+}
+
+@keyframes fadeIn{
+
+from{
+opacity:0;
+transform:translateY(8px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
