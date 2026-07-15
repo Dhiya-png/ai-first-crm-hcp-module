@@ -1,15 +1,38 @@
 from langchain.tools import tool
+from sqlalchemy.orm import Session
+
+from app.database import SessionLocal
+from app.models.hcp import HCP
 
 
 @tool
-def search_hcp(
-    doctor_name: str
-):
+def search_hcp(doctor_name: str):
     """
-    Search doctor information.
+    Search Healthcare Professional (HCP) by doctor name.
     """
 
-    return {
-        "doctor_name": doctor_name,
-        "status": "Found"
-    }
+    db: Session = SessionLocal()
+
+    try:
+        doctor = (
+            db.query(HCP)
+            .filter(HCP.name.ilike(f"%{doctor_name}%"))
+            .first()
+        )
+
+        if doctor:
+            return {
+                "hcp_id": doctor.id,
+                "doctor_name": doctor.name,
+                "specialization": doctor.specialization,
+                "hospital": doctor.hospital,
+                "status": "HCP found"
+            }
+
+        return {
+            "status": "Not Found",
+            "message": f"No doctor found with name '{doctor_name}'."
+        }
+
+    finally:
+        db.close()

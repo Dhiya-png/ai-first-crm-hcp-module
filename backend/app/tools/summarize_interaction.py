@@ -1,10 +1,23 @@
 from langchain.tools import tool
 
 @tool
-def summarize_interaction(text: str):
+def summarize_interaction(
+    doctor_name: str,
+    discussion: str,
+    products: str = "",
+):
     """
-    Summarize an interaction.
+    Generate a concise summary of an HCP interaction.
     """
-    return (
-        f"Summary generated for: {text}"
+
+    summary = (
+        f"Met with {doctor_name}. "
+        f"Discussed {discussion}. "
+        f"Products discussed: {products}."
     )
+
+    return {
+        "doctor_name": doctor_name,
+        "summary": summary,
+        "status": "Summary generated successfully"
+    }
